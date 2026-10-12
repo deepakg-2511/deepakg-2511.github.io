@@ -1,7 +1,7 @@
 /* Multiscale figures, computed in the browser.
 
-   1. [data-msfig]  — hero figure. Exact solutions of three benchmark problems
-      from the WPIQNN paper (arXiv:2512.08256) and their multilevel 2D Haar
+   1. [data-msfig]  — hero figure. Exact solutions of benchmark problems
+      from the WPIQNN and ER-WPIQNN papers (arXiv:2512.08256) and their multilevel 2D Haar
       decomposition (standard pyramid: only the coarse block is split again).
    2. [data-qwt-demo] — software page. A state-vector simulation of the gate
       sequence used by the single-level 2D Haar QWT in
@@ -16,17 +16,21 @@
   /* ------------------------------------------------------------------ */
   /* Benchmark fields (exact solutions as stated in the WPIQNN paper)    */
   /* ------------------------------------------------------------------ */
+  /* Each field: f(X, T) is the formula; map(u, v) turns figure coordinates
+     (u: 0 → 1 left to right, v: 0 → 1 bottom to top) into the arguments of f.
+     axes: [horizontal label, vertical label].
+     Time-dependent problems are drawn with t horizontal and x vertical. */
   var FIELDS = {
     heat: {
       name: "Heat conduction",
-      axes: ["x", "t"],
+      axes: ["t", "x"],
       signed: false,
       note: "u = (1 − x²) exp(1 / ((2t − 1)² + ε)), ε = 0.15",
       f: function (X, T) { // X in (-1,1), T in (0,1)
         var eps = 0.15;
         return (1 - X * X) * Math.exp(1 / ((2 * T - 1) * (2 * T - 1) + eps));
       },
-      map: function (u, v) { return [-1 + 2 * u, v]; }
+      map: function (u, v) { return [-1 + 2 * v, u]; }   // x = vertical, t = horizontal
     },
     helmholtz: {
       name: "Helmholtz",
@@ -34,17 +38,35 @@
       signed: true,
       note: "u = sin(πx) sin(8πy)",
       f: function (X, Y) { return Math.sin(Math.PI * X) * Math.sin(8 * Math.PI * Y); },
-      map: function (u, v) { return [-1 + 2 * u, -1 + 2 * v]; }
+      map: function (u, v) { return [-1 + 2 * u, -1 + 2 * v]; }   // x = horizontal, y = vertical
     },
     klein: {
       name: "Klein–Gordon",
-      axes: ["x", "t"],
+      axes: ["t", "x"],
       signed: true,
       note: "u = x cos(10πt) + (xt)³",
       f: function (X, T) { return X * Math.cos(10 * Math.PI * T) + Math.pow(X * T, 3); },
-      map: function (u, v) { return [u, v]; }
+      map: function (u, v) { return [v, u]; }              // x in [0,1] vertical, t horizontal
+    },
+    Multi_Frequency: {
+      name: "Multi-frequency diffusion",
+      axes: ["t", "x"],
+      signed: true,
+      note: "u = sin(φ(x) t), φ(x) = 20π / (1 + 9x²)",
+      f: function (X, T) { // X in (-1,1), T in (0,1)
+        var phi = 20 * Math.PI / (1 + 9 * X * X);
+        return Math.sin(phi * T);
+      },
+      map: function (u, v) { return [-1 + 2 * v, u]; }   // x = vertical, t = horizontal
     }
   };
+
+  /* Colour map used when a field does not set its own `cmap`:
+     "jet"   = Matplotlib's jet,
+     "theme" = the site's blue/amber colours (follow light/dark mode).
+     To give one problem a different map, add  cmap: "theme"  to its entry. */
+  var DEFAULT_CMAP = "jet";
+
 
   /* Sample on an N×N grid of cell centres, row 0 at the top (v = 1). */
   function sample(key, N) {
@@ -138,13 +160,48 @@
     var g = function (n) { return cs.getPropertyValue(n).trim(); };
     return { neg: g("--neg"), pos: g("--pos"), mid: g("--mid"), end: g("--seq-end"), surface: g("--surface") };
   }
+  /* Jet colour map: Matplotlib's piecewise-linear definition. */
+  var JET_SEGMENTS = {
+    r: [[0, 0], [0.35, 0], [0.66, 1], [0.89, 1], [1, 0.5]],
+    g: [[0, 0], [0.125, 0], [0.375, 1], [0.64, 1], [0.91, 0], [1, 0]],
+    b: [[0, 0.5], [0.11, 1], [0.34, 1], [0.65, 0], [1, 0]]
+  };
+  function jetChannel(seg, x) {
+    for (var i = 1; i < seg.length; i++) {
+      if (x <= seg[i][0]) {
+        var a = seg[i - 1], b = seg[i];
+        return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
+      }
+    }
+    return seg[seg.length - 1][1];
+  }
+  function jetRamp(n) {
+    var out = [];
+    for (var i = 0; i < n; i++) {
+      var x = i / (n - 1);
+      out.push([jetChannel(JET_SEGMENTS.r, x), jetChannel(JET_SEGMENTS.g, x), jetChannel(JET_SEGMENTS.b, x)]
+        .map(function (v) { return Math.round(v * 255); }));
+    }
+    return out;
+  }
+  function cssGradient(rgbs) {
+    var stops = [];
+    for (var i = 0; i < rgbs.length; i += Math.max(1, Math.floor(rgbs.length / 16))) stops.push("rgb(" + rgbs[i].join(",") + ")");
+    stops.push("rgb(" + rgbs[rgbs.length - 1].join(",") + ")");
+    return "linear-gradient(90deg, " + stops.join(", ") + ")";
+  }
   function palettes() {
     var t = tokens();
     return {
       seq: ramp([t.mid, t.neg, t.end], 256),          // magnitude
       div: ramp([t.neg, t.mid, t.pos], 257),          // sign: negative · zero · positive
-      gap: t.surface
+      gap: t.surface,
+      jet: { seq: jetRamp(256), div: jetRamp(257), gap: t.surface }
     };
+  }
+  /* Palette for a given field: its own `cmap`, else DEFAULT_CMAP. */
+  function palFor(F, pal) {
+    return (F.cmap || DEFAULT_CMAP) === "jet" ? pal.jet : pal;
   }
 
   /* Render coefficient array to RGBA following the pyramid layout. */
@@ -227,6 +284,7 @@
     var axX = root.querySelector(".axis-x"), axY = root.querySelector(".axis-y");
     var noteEl = root.querySelector("[data-field-note]");
     var radios = root.querySelectorAll("input[name=ms-field]");
+    var keyField = root.querySelector(".ms-key .k-field"), keyDetail = root.querySelector(".ms-key .k-detail");
     var state = { field: "heat", level: Number(levelInput.value), data: null, base: null, pal: palettes() };
     var cache = {};
     var img = new ImageData(N, N);
@@ -242,7 +300,10 @@
     }
     function render() {
       var F = FIELDS[state.field], D = load(state.field), L = state.level;
-      paint(img, D.coeffs[L], N, L, F.signed, state.pal);
+      var P = palFor(F, state.pal);
+      paint(img, D.coeffs[L], N, L, F.signed, P);
+      if (keyField) keyField.style.background = P === state.pal ? "" : cssGradient(F.signed ? P.div : P.seq);
+      if (keyDetail) keyDetail.style.background = P === state.pal ? "" : cssGradient(P.div);
       drawToCanvas(canvas, N, img, L, state.pal.gap);
       axX.textContent = F.axes[0]; axY.textContent = F.axes[1];
       axX.hidden = axY.hidden = L > 0; // axes only describe the raw field
@@ -352,17 +413,17 @@
     }
     function render() {
       var R = compute();
-      paint(imgIn, R.psi, N, 0, R.F.signed, state.pal);
+      paint(imgIn, R.psi, N, 0, R.F.signed, palFor(R.F, state.pal));
       drawToCanvas(cIn, N, imgIn, 0, state.pal.gap);
       if (state.showInverse) {
-        paint(imgOut, R.back, N, 0, R.F.signed, state.pal);
+        paint(imgOut, R.back, N, 0, R.F.signed, palFor(R.F, state.pal));
         drawToCanvas(cOut, N, imgOut, 0, state.pal.gap);
         capOut.textContent = "After the circuit and its inverse";
         readout.textContent = "Forward then inverse circuit: largest deviation from the input amplitudes is " +
           R.err.toExponential(1).replace("e-", "×10⁻").replace(/(\d+)$/, function (m) { return toSup(m); }) + ".";
         btn.textContent = "Show the transform";
       } else {
-        paint(imgOut, R.out, N, 1, R.F.signed, state.pal);
+        paint(imgOut, R.out, N, 1, R.F.signed, palFor(R.F, state.pal));
         drawToCanvas(cOut, N, imgOut, 1, state.pal.gap);
         capOut.textContent = "Output amplitudes, one level";
         readout.textContent = nH + " Hadamard and " + nS + " SWAP gates on " + nq + " qubits (" + n + " per register). " +
