@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research — Deepak Gupta</title>
+<meta name="description" content="Wavelet-based quantum PINNs for multiscale PDEs, quantum PINNs for integro and fractional equations, and quantum neural operators: papers, methods and how to read the results.">
+<meta name="author" content="Deepak Gupta">
+<link rel="canonical" href="https://deepakg-2511.github.io/research/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F7F8FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1320" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Deepak Gupta">
+<meta property="og:title" content="Research — Deepak Gupta">
+<meta property="og:description" content="Wavelet-based quantum PINNs for multiscale PDEs, quantum PINNs for integro and fractional equations, and quantum neural operators: papers, methods and how to read the results.">
+<meta property="og:url" content="https://deepakg-2511.github.io/research/">
+<meta property="og:image" content="https://deepakg-2511.github.io/assets/img/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Deepak Gupta — quantum machine learning for scientific computing, with a multilevel wavelet decomposition of a PDE solution.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/pagella-regular.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-sans-regular.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<script src="/assets/js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/"><svg viewBox="0 0 22 22" aria-hidden="true" focusable="false"><rect class="q-a" x="1.7" y="1.7" width="4.65" height="4.65"/><path class="q-d" d="M1.7 1.7h18.6v18.6H1.7z M11 1.7v18.6 M1.7 11h18.6 M6.35 1.7v9.3 M1.7 6.35h9.3"/></svg><span>Deepak Gupta</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/research/" aria-current="page">Research</a>
+      <a href="/software/">Software</a>
+      <a href="/about/">About</a>
+      <button class="theme-toggle" type="button" aria-label="Switch theme">
+        <svg class="i-moon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.2 1.1a6.9 6.9 0 1 0 8.7 8.7A5.6 5.6 0 0 1 6.2 1.1z"/></svg>
+        <svg class="i-sun" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 .9v1.8M8 13.3v1.8M.9 8h1.8M13.3 8h1.8M3 3l1.3 1.3M11.7 11.7 13 13M3 13l1.3-1.3M11.7 4.3 13 3"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <header class="page-head">
+    <div class="wrap">
+      <h1>Research</h1>
+      <p class="lead">I develop and test quantum and hybrid quantum–classical methods for differential equations, with a focus on solutions that have sharp gradients, localized structure or nonlocal dependence. This page explains the question behind the work, describes each paper, and says how the reported numbers should be read.</p>
+      <ul class="legend meta" aria-label="How status is marked" style="margin-top:1.25rem">
+        <li class="status status--preprint">Public preprint</li>
+        <li class="status status--review">Manuscript under review</li>
+        <li class="status status--exploring">Exploring, no results yet</li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="wrap article-grid">
+    <nav class="toc" aria-labelledby="toc-h">
+      <h2 id="toc-h">On this page</h2>
+      <ol>
+        <li><a href="#question">The question</a></li>
+        <li><a href="#wavelets">Wavelet bases in quantum PINNs</a>
+          <ol>
+            <li><a href="#wpiqnn">WPIQNN</a></li>
+            <li><a href="#er-wpiqnn">ER-WPIQNN</a></li>
+          </ol>
+        </li>
+        <li><a href="#nonlocal">Quantum PINNs for nonlocal equations</a></li>
+        <li><a href="#operators">Exploring: quantum neural operators</a></li>
+        <li><a href="#numbers">How to read the numbers</a></li>
+        <li><a href="#talks">Talks</a></li>
+      </ol>
+    </nav>
+
+    <article class="article">
+
+      <section id="question" aria-labelledby="question-h">
+        <h2 id="question-h">The question</h2>
+        <div class="prose">
+          <p>Physics-informed neural networks (PINNs) solve a differential equation by training a network to make the equation's residual small at sampled points. They work well for smooth problems and struggle when the solution has steep gradients, high-frequency oscillation or stiffness: networks tend to fit low frequencies first, and the separate loss terms are hard to balance.</p>
+          <p>Quantum PINNs replace part of the network with a parameterized quantum circuit. Such circuits can represent rich functions with few trainable parameters, but on their own they run into the same difficulties with multiscale solutions, and differentiating through them is expensive in simulation.</p>
+          <p>My work asks what changes when the quantum model is paired with a basis suited to the problem, such as wavelets for localized multiscale features, and with formulations that handle nonlocal operators. I try to be as careful about the costs as about the gains: how many parameters and qubits a method needs, what it costs to simulate, and which conclusions a given experiment actually supports.</p>
+        </div>
+      </section>
+
+      <section id="wavelets" aria-labelledby="wavelets-h">
+        <h2 id="wavelets-h">Wavelet bases in quantum PINNs</h2>
+        <div class="prose">
+          <p>Wavelets are localized in both position and scale. A function with a sharp front needs many Fourier modes to describe, but only a handful of fine-scale wavelet coefficients near the front. The figure on the <a href="/">home page</a> shows this on the benchmark solutions used below. The two papers in this line of work build that property into quantum PINNs.</p>
+        </div>
+
+        <div class="paper-block" id="wpiqnn">
+          <span class="status status--preprint">arXiv preprint, December 2025</span>
+          <h3>Wavelet-Accelerated Physics-Informed Quantum Neural Network for Multiscale Partial Differential Equations</h3>
+          <p class="pub-authors"><span class="me">Deepak Gupta</span>, Himanshu Pandey, Ratikanta Behera</p>
+          <ul class="links"><li><a href="https://arxiv.org/abs/2512.08256">arXiv:2512.08256</a></li><li><a href="https://arxiv.org/pdf/2512.08256">PDF</a></li></ul>
+
+          <div class="prose">
+            <h4>The idea</h4>
+            <p>Instead of asking a circuit for the value of the solution at each point, WPIQNN writes the solution as a finite wavelet expansion and lets the hybrid network supply the coefficients:</p>
+            <math display="block"><mrow><mover accent="true"><mi>u</mi><mo>^</mo></mover><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mo>∑</mo><mrow><mi>j</mi><mo>,</mo><mi>k</mi></mrow></munder><msub><mi>c</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo><mspace width="0.17em"></mspace><msub><mi>ψ</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>+</mo><mi>B</mi><mo>,</mo></mrow></math>
+            <math display="block"><mrow><msub><mi>ψ</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>j</mi><mo lspace="0" rspace="0">/</mo><mn>2</mn></mrow></msup><mi>ψ</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>j</mi></msup><mi>x</mi><mo>−</mo><mi>k</mi><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+            <math display="block"><mrow><mi>ψ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo lspace="0.28em" rspace="0.05em">−</mo><mi>x</mi><msup><mi>e</mi><mrow><mo>−</mo><msup><mi>x</mi><mn>2</mn></msup><mo lspace="0" rspace="0">/</mo><mn>2</mn></mrow></msup><mo>,</mo></mrow></math>
+            <p>over a chosen range of scales <math><mi>j</mi></math>, with tensor products of these functions in more than one dimension. Because the basis is fixed, its derivatives can be computed analytically once and stored as matrices. The PDE, boundary and initial residuals are then assembled from those matrices and the coefficients, without automatic differentiation through the network for the residual itself. Gradients with respect to the circuit parameters <math><mi>θ</mi></math>, needed for training, are still computed in the usual way.</p>
+          </div>
+
+          <figure>
+            <ol class="flow" style="--n:4" aria-label="WPIQNN pipeline">
+              <li><strong>Encode</strong>Collocation points <math><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>t</mi><mo stretchy="false">)</mo></math> enter as rotation angles (<math><msub><mi>R</mi><mi>y</mi></msub></math> gates).</li>
+              <li class="q"><strong>Quantum feature maps</strong>A small circuit (4 qubits, 2 layers) builds features, which are amplitude-encoded into a second circuit (13–14 qubits, 4 layers of <math><msub><mi>R</mi><mi>z</mi></msub><msub><mi>R</mi><mi>y</mi></msub><msub><mi>R</mi><mi>z</mi></msub></math> rotations and a ring of CNOTs). Pauli-<math><mi>Z</mi></math> expectations are read out. One-dimensional problems skip the first circuit.</li>
+              <li><strong>Wavelet coefficients</strong>A classical layer maps the measurements to coefficients <math><msub><mi>c</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub></math>, giving <math><mover accent="true"><mi>u</mi><mo>^</mo></mover></math> and its derivatives through the precomputed wavelet matrices.</li>
+              <li><strong>Physics-informed loss</strong>Mean-squared PDE, boundary and initial residuals, minimized over <math><mi>θ</mi></math> with Adam.</li>
+            </ol>
+            <p class="flow-key"><i aria-hidden="true"></i>Stage that runs as a quantum circuit (here, in simulation)</p>
+            <figcaption>How a WPIQNN evaluates its loss, following Section 3 of the paper. Circuit sizes are those listed in the paper's appendix for the benchmarks below.</figcaption>
+          </figure>
+
+          <div class="prose">
+            <h4>Experiments</h4>
+            <p>The paper uses four benchmark families with known exact solutions: a heat-conduction problem whose solution develops a sharp peak as a parameter <math><mi>ε</mi></math> decreases (from 0.5 down to 0.11), a Helmholtz equation in a high-frequency regime, a Klein–Gordon equation with fast oscillation in time, and one-dimensional Maxwell equations in homogeneous and heterogeneous media. The baselines are a classical PINN, two earlier quantum PINN designs (PIQNN-I and PIQNN-II) and a classical wavelet-based PINN (W-PINN). Errors are relative <math><msup><mi>L</mi><mn>2</mn></msup></math> errors averaged over ten runs.</p>
+          </div>
+
+          <figure class="wide">
+            <div class="panel chart chart-wrap"><svg viewBox="0 0 640 372" role="img" aria-labelledby="wp-ch-t wp-ch-d" xmlns="http://www.w3.org/2000/svg">
+<title id="wp-ch-t">Relative L2 error against number of trainable parameters, heat conduction problem with epsilon 0.15</title>
+<desc id="wp-ch-d">Log–log scatter of five methods. Classical PINN: 29,521 parameters, error 1.05. PIQNN-I: 97 parameters, error 0.437. PIQNN-II: 115 parameters, error 0.285. W-PINN: 1,574,692 parameters, error 3.96e-4. WPIQNN: 22,652 parameters, error 2.13e-4.</desc>
+<g class="grid">
+<line x1="66.0" y1="18" x2="66.0" y2="318"/>
+<line x1="157.3" y1="18" x2="157.3" y2="318"/>
+<line x1="248.7" y1="18" x2="248.7" y2="318"/>
+<line x1="340.0" y1="18" x2="340.0" y2="318"/>
+<line x1="431.3" y1="18" x2="431.3" y2="318"/>
+<line x1="522.7" y1="18" x2="522.7" y2="318"/>
+<line x1="614.0" y1="18" x2="614.0" y2="318"/>
+<line x1="66" y1="318.0" x2="614" y2="318.0"/>
+<line x1="66" y1="258.0" x2="614" y2="258.0"/>
+<line x1="66" y1="198.0" x2="614" y2="198.0"/>
+<line x1="66" y1="138.0" x2="614" y2="138.0"/>
+<line x1="66" y1="78.0" x2="614" y2="78.0"/>
+<line x1="66" y1="18.0" x2="614" y2="18.0"/>
+</g>
+<line class="axis-line" x1="66" y1="318" x2="614" y2="318"/>
+<text class="tick" x="66.0" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">1</tspan></text>
+<text class="tick" x="157.3" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">2</tspan></text>
+<text class="tick" x="248.7" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">3</tspan></text>
+<text class="tick" x="340.0" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">4</tspan></text>
+<text class="tick" x="431.3" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">5</tspan></text>
+<text class="tick" x="522.7" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">6</tspan></text>
+<text class="tick" x="614.0" y="338" text-anchor="middle">10<tspan dy="-6" font-size="9">7</tspan></text>
+<text class="tick" x="56" y="322.0" text-anchor="end">10<tspan dy="-6" font-size="9">−4</tspan></text>
+<text class="tick" x="56" y="262.0" text-anchor="end">10<tspan dy="-6" font-size="9">−3</tspan></text>
+<text class="tick" x="56" y="202.0" text-anchor="end">10<tspan dy="-6" font-size="9">−2</tspan></text>
+<text class="tick" x="56" y="142.0" text-anchor="end">10<tspan dy="-6" font-size="9">−1</tspan></text>
+<text class="tick" x="56" y="82.0" text-anchor="end">10<tspan dy="-6" font-size="9">0</tspan></text>
+<text class="tick" x="56" y="22.0" text-anchor="end">10<tspan dy="-6" font-size="9">1</tspan></text>
+<text class="axis-title" x="340.0" y="364" text-anchor="middle">Trainable parameters (log scale)</text>
+<text class="axis-title" x="14" y="168.0" text-anchor="middle" transform="rotate(-90 14 168.0)">Relative L² error (log scale)</text>
+<line class="err" x1="382.9" y1="73.7" x2="382.9" y2="80.2"/>
+<line class="err" x1="378.9" y1="73.7" x2="386.9" y2="73.7"/>
+<line class="err" x1="378.9" y1="80.2" x2="386.9" y2="80.2"/>
+<line class="err" x1="156.1" y1="94.8" x2="156.1" y2="105.4"/>
+<line class="err" x1="152.1" y1="94.8" x2="160.1" y2="94.8"/>
+<line class="err" x1="152.1" y1="105.4" x2="160.1" y2="105.4"/>
+<line class="err" x1="162.9" y1="106.3" x2="162.9" y2="116.1"/>
+<line class="err" x1="158.9" y1="106.3" x2="166.9" y2="106.3"/>
+<line class="err" x1="158.9" y1="116.1" x2="166.9" y2="116.1"/>
+<line class="err" x1="540.7" y1="274.7" x2="540.7" y2="292.5"/>
+<line class="err" x1="536.7" y1="274.7" x2="544.7" y2="274.7"/>
+<line class="err" x1="536.7" y1="292.5" x2="544.7" y2="292.5"/>
+<line class="err hl" x1="372.4" y1="293.5" x2="372.4" y2="304.2"/>
+<line class="err hl" x1="368.4" y1="293.5" x2="376.4" y2="293.5"/>
+<line class="err hl" x1="368.4" y1="304.2" x2="376.4" y2="304.2"/>
+<circle class="pt" cx="382.9" cy="76.7" r="5.5"/>
+<text class="lbl" x="394.9" y="74.7" text-anchor="start">Classical PINN</text>
+<text class="lbl-sub" x="394.9" y="88.7" text-anchor="start">29,521 params</text>
+<circle class="hit" cx="382.9" cy="76.7" r="14" tabindex="0" data-tip="Classical PINN: 29,521 parameters, error 1.05 ± 0.13"><title>Classical PINN: 29,521 parameters, relative L2 error 1.05 ± 0.13</title></circle>
+<circle class="pt" cx="156.1" cy="99.6" r="5.5"/>
+<text class="lbl" x="144.1" y="93.6" text-anchor="end">PIQNN-I</text>
+<text class="lbl-sub" x="144.1" y="107.6" text-anchor="end">97 params</text>
+<circle class="hit" cx="156.1" cy="99.6" r="14" tabindex="0" data-tip="PIQNN-I: 97 parameters, error 0.437 ± 0.087"><title>PIQNN-I: 97 parameters, relative L2 error 0.437 ± 0.087</title></circle>
+<circle class="pt" cx="162.9" cy="110.7" r="5.5"/>
+<text class="lbl" x="174.9" y="124.7" text-anchor="start">PIQNN-II</text>
+<text class="lbl-sub" x="174.9" y="138.7" text-anchor="start">115 params</text>
+<circle class="hit" cx="162.9" cy="110.7" r="14" tabindex="0" data-tip="PIQNN-II: 115 parameters, error 0.285 ± 0.053"><title>PIQNN-II: 115 parameters, relative L2 error 0.285 ± 0.053</title></circle>
+<circle class="pt" cx="540.7" cy="282.1" r="5.5"/>
+<text class="lbl" x="540.7" y="256.1" text-anchor="middle">W-PINN</text>
+<text class="lbl-sub" x="540.7" y="270.1" text-anchor="middle">1,574,692 params</text>
+<circle class="hit" cx="540.7" cy="282.1" r="14" tabindex="0" data-tip="W-PINN: 1,574,692 parameters, error 0.000396 ± 0.00013"><title>W-PINN: 1,574,692 parameters, relative L2 error 0.000396 ± 0.00013</title></circle>
+<circle class="pt hl" cx="372.4" cy="298.3" r="5.5"/>
+<text class="lbl" x="384.4" y="296.3" text-anchor="start" font-weight="600">WPIQNN</text>
+<text class="lbl-sub" x="384.4" y="310.3" text-anchor="start">22,652 params</text>
+<circle class="hit" cx="372.4" cy="298.3" r="14" tabindex="0" data-tip="WPIQNN: 22,652 parameters, error 0.000213 ± 4.3e-05"><title>WPIQNN: 22,652 parameters, relative L2 error 0.000213 ± 4.3e-05</title></circle>
+</svg></div>
+            <figcaption><b>Accuracy against model size, heat conduction with ε = 0.15</b> (Table 1 of the paper; whiskers show one standard deviation over ten runs). The two quantum PINN baselines are small but stay at errors of 0.29 to 0.44. The classical wavelet PINN reaches about 4 × 10⁻⁴ with roughly 1.6 million parameters; WPIQNN reaches a lower mean error with about 22,700.</figcaption>
+            <details class="data">
+              <summary>Show the values as a table</summary>
+              <div class="table-scroll">
+                <table class="data">
+                  <thead><tr><th scope="col">Method</th><th scope="col" class="num">Trainable parameters</th><th scope="col" class="num">Relative L² error (mean ± sd)</th></tr></thead>
+                  <tbody>
+                    <tr><td>Classical PINN</td><td class="num">29,521</td><td class="num">1.05 ± 0.13</td></tr>
+                    <tr><td>PIQNN-I</td><td class="num">97</td><td class="num">(4.37 ± 0.87) × 10⁻¹</td></tr>
+                    <tr><td>PIQNN-II</td><td class="num">115</td><td class="num">(2.85 ± 0.53) × 10⁻¹</td></tr>
+                    <tr><td>W-PINN</td><td class="num">1,574,692</td><td class="num">(3.96 ± 1.3) × 10⁻⁴</td></tr>
+                    <tr><td>WPIQNN</td><td class="num">22,652</td><td class="num">(2.13 ± 0.43) × 10⁻⁴</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </figure>
+
+          <div class="prose">
+            <h4>What the paper reports</h4>
+            <ul>
+              <li>On every benchmark, WPIQNN's mean error is lower than that of the classical wavelet PINN, while using 1.3–1.8% of its trainable parameters.</li>
+              <li>For <math><mi>ε</mi></math> between 0.14 and 0.11, where the paper reports that the other methods did not converge, WPIQNN reaches errors of order 10⁻⁴.</li>
+              <li>In a timing study on the heat problem, training is about 1.8 to 2.3 times faster than PIQNN-I and 3.9 to 5.7 times faster than PIQNN-II, depending on circuit depth.</li>
+            </ul>
+            <h4>What it does not show</h4>
+            <p>All experiments use a noiseless state-vector simulator, so the comparisons concern accuracy, parameter count and simulated training time. They say nothing about performance on quantum hardware and are not evidence of a quantum speedup. The timing comparison is against other quantum PINNs; the paper does not compare wall-clock time with the classical W-PINN, because simulating the circuits on classical hardware is itself costly.</p>
+          </div>
+
+          <details class="bib">
+            <summary>BibTeX</summary>
+            <div class="bib-box">
+              <button class="copy-btn" type="button" data-copy="bib-wpiqnn">Copy</button>
+<pre id="bib-wpiqnn">@misc{gupta2025wavelet,
+  title         = {Wavelet-Accelerated Physics-Informed Quantum Neural Network
+                   for Multiscale Partial Differential Equations},
+  author        = {Gupta, Deepak and Pandey, Himanshu and Behera, Ratikanta},
+  year          = {2025},
+  eprint        = {2512.08256},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://arxiv.org/abs/2512.08256}
+}</pre>
+            </div>
+          </details>
+        </div>
+
+        <div class="paper-block" id="er-wpiqnn">
+          <span class="status status--review">Manuscript under review</span>
+          <h3>ER-WPIQNN: Energy-Refined Wavelet-Based Quantum PINNs for PDEs with Sharp Localized Structures</h3>
+          <div class="prose">
+            <p>WPIQNN fixes its wavelet dictionary in advance. For solutions with sharp, localized features a larger dictionary helps resolve them, but many of its wavelets end up carrying little information and add redundancy. ER-WPIQNN works in two stages. A short initial WPIQNN training stage gives a first estimate of the wavelet coefficients; an energy-based criterion then selects the most informative wavelets, and the model is refined classically using only those. The aim is a smaller, better-targeted basis for problems with localized structure.</p>
+            <p class="meta">Details and results will appear here once the manuscript is public.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="nonlocal" aria-labelledby="nonlocal-h">
+        <h2 id="nonlocal-h">Quantum PINNs for nonlocal equations</h2>
+        <div class="prose">
+          <p>Models of viscoelasticity, anomalous diffusion and heat transfer with memory involve integrals over a solution's history or fractional derivatives. Such nonlocal operators do not fit the pointwise residual of a standard PINN and need their own treatment.</p>
+        </div>
+
+        <div class="paper-block" id="qpinn-nonlocal">
+          <span class="status status--preprint">arXiv preprint, June 2026</span>
+          <h3>Quantum Physics-Informed Neural Networks for Solving Integro and Fractional PDEs</h3>
+          <p class="pub-authors"><span class="me">Deepak Gupta</span>, Ratikanta Behera</p>
+          <ul class="links"><li><a href="https://arxiv.org/abs/2606.26865">arXiv:2606.26865</a></li><li><a href="https://arxiv.org/pdf/2606.26865">PDF</a></li></ul>
+
+          <div class="prose">
+            <h4>Problem classes</h4>
+            <p>The paper treats nonlinear integro-differential equations of the form</p>
+            <math display="block"><mrow><mi>ℒ</mi><mo stretchy="false">[</mo><mi>u</mi><mo stretchy="false">]</mo><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>+</mo><mi>λ</mi><msub><mo>∫</mo><mrow><mi>𝒟</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></msub><mi>K</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>z</mi><mo stretchy="false">)</mo><mspace width="0.17em"></mspace><mi>𝒩</mi><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">(</mo><mi>z</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mspace width="0.17em"></mspace><mi mathvariant="normal">d</mi><mi>z</mi><mo>,</mo></mrow></math>
+            <p>coupled systems of such equations, and nonlinear time-fractional integro-PDEs that combine Caputo derivatives with fractional integrals, where</p>
+            <math display="block"><mrow><msubsup><mi>D</mi><mi>t</mi><mi>α</mi></msubsup><mi>u</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">Γ</mi><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false">)</mo></mrow></mfrac><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><msub><mo>∂</mo><mi>s</mi></msub><mi>u</mi><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo><mspace width="0.17em"></mspace><msup><mrow><mo stretchy="false">(</mo><mi>t</mi><mo>−</mo><mi>s</mi><mo stretchy="false">)</mo></mrow><mrow><mo>−</mo><mi>α</mi></mrow></msup><mspace width="0.17em"></mspace><mi mathvariant="normal">d</mi><mi>s</mi><mo>,</mo><mspace width="1em"></mspace><mn>0</mn><mo>&lt;</mo><mi>α</mi><mo>&lt;</mo><mn>1</mn><mo lspace="0">.</mo></mrow></math>
+
+            <h4>The model</h4>
+            <p>Inputs pass through a trainable affine map <math><mi>z</mi><mo>=</mo><mi>W</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>; each <math><msub><mi>z</mi><mi>i</mi></msub></math> is encoded as a rotation <math><msub><mi>R</mi><mi>y</mi></msub><mo stretchy="false">(</mo><msub><mi>z</mi><mi>i</mi></msub><mo stretchy="false">)</mo></math> on its own qubit, followed by layers of single-qubit rotations and a ring of CNOTs. A linear readout of the Pauli-<math><mi>Z</mi></math> expectations gives the trial solution <math><msub><mi>u</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mi>𝐜</mi><mo>⊤</mo></msup><mi mathvariant="normal">Φ</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>c</mi><mn>0</mn></msub></math>. Each measured expectation is a trigonometric polynomial in the affine variables, and that structure leads to the approximation result: for a probability measure <math><mi>μ</mi></math> and a target <math><mi>f</mi></math> with integrable Fourier transform, an <math><mi>n</mi></math>-qubit circuit of this form can achieve</p>
+            <math display="block"><mrow><msub><mrow><mo stretchy="false">‖</mo><mi>f</mi><mo>−</mo><msub><mi>u</mi><mi>θ</mi></msub><mo stretchy="false">‖</mo></mrow><mrow><msup><mi>L</mi><mn>2</mn></msup><mo stretchy="false">(</mo><mi>μ</mi><mo stretchy="false">)</mo></mrow></msub><mo>≤</mo><mfrac><msub><mrow><mo stretchy="false">‖</mo><mover accent="true"><mi>f</mi><mo>^</mo></mover><mo stretchy="false">‖</mo></mrow><msup><mi>L</mi><mn>1</mn></msup></msub><msqrt><mi>n</mi></msqrt></mfrac><mo lspace="0.1em">.</mo></mrow></math>
+            <p>This is an existence statement, proved with a Monte Carlo sampling argument in the spirit of Barron-type bounds for neural networks. It says that suitable parameters exist, not that training will find them.</p>
+
+            <h4>Two treatments of the nonlocal terms</h4>
+            <dl class="kv">
+              <dt>N-QPINN</dt>
+              <dd>Evaluates integrals and fractional operators by quadrature (Gauss–Legendre and trapezoidal rules, and a graded time mesh for the Caputo derivative); local derivatives by automatic differentiation. Covers all three problem classes.</dd>
+              <dt>A-QPINN</dt>
+              <dd>Introduces auxiliary variables for the integral terms, turning each equation into an equivalent local system that a multi-output circuit solves jointly, with no quadrature. Not applicable to the fractional problem.</dd>
+            </dl>
+
+            <h4>Experiments</h4>
+            <p>Four problems with known solutions: a scalar nonlinear Volterra equation, a coupled Volterra system, a two-dimensional Volterra integro-PDE and a time-fractional integro-PDE. The classical baseline is an auxiliary-variable PINN (A-PINN). Errors are relative <math><msup><mi>L</mi><mn>2</mn></msup></math> errors averaged over five runs.</p>
+          </div>
+
+          <figure class="wide" style="margin-top:1rem">
+            <div class="table-scroll panel">
+              <table class="data" style="margin-top:0">
+                <caption class="visually-hidden">Relative L2 errors and trainable parameters reported in the paper</caption>
+                <thead><tr><th scope="col">Problem</th><th scope="col">Method</th><th scope="col" class="num">Relative L² error</th><th scope="col" class="num">Parameters</th></tr></thead>
+                <tbody>
+                  <tr><td rowspan="3">Scalar Volterra equation</td><td>A-PINN (classical)</td><td class="num">1.09 × 10⁻³</td><td class="num">322</td></tr>
+                  <tr><td>N-QPINN</td><td class="num">2.59 × 10⁻⁴</td><td class="num">121</td></tr>
+                  <tr><td>A-QPINN</td><td class="num">5.02 × 10⁻⁴</td><td class="num">130</td></tr>
+                  <tr><td rowspan="3">Volterra system (<i>u</i>, <i>v</i>)</td><td>A-PINN (classical)</td><td class="num">3.94 × 10⁻⁴, 5.29 × 10⁻⁴</td><td class="num">166</td></tr>
+                  <tr><td>N-QPINN</td><td class="num">1.02 × 10⁻⁴, 7.57 × 10⁻⁵</td><td class="num">52</td></tr>
+                  <tr><td>A-QPINN</td><td class="num">5.22 × 10⁻⁴, 1.45 × 10⁻⁴</td><td class="num">112</td></tr>
+                  <tr><td rowspan="2">2D Volterra integro-PDE</td><td>N-QPINN</td><td class="num">1.45 × 10⁻³</td><td class="num">97</td></tr>
+                  <tr><td>A-QPINN</td><td class="num">5.13 × 10⁻⁴</td><td class="num">123</td></tr>
+                  <tr><td>Time-fractional integro-PDE</td><td>N-QPINN</td><td class="num">1.87 × 10⁻²</td><td class="num">4 qubits, 4 layers</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <figcaption>Mean errors from Tables 1–3 and Section 6.4 of the paper. On the scalar equation and the coupled system, N-QPINN is the most accurate model with the fewest parameters; on the 2D problem A-QPINN is the more accurate quantum variant. The fractional problem has no classical baseline in the paper.</figcaption>
+          </figure>
+
+          <div class="prose">
+            <h4>Limits</h4>
+            <p>As with the wavelet work, everything runs on a noiseless simulator, and the problems are small. The approximation theorem is an existence result. A-QPINN cannot handle fractional operators, and the paper lists noise-aware training and hardware runs as future work.</p>
+          </div>
+
+          <details class="bib">
+            <summary>BibTeX</summary>
+            <div class="bib-box">
+              <button class="copy-btn" type="button" data-copy="bib-qpinn">Copy</button>
+<pre id="bib-qpinn">@misc{gupta2026quantum,
+  title         = {Quantum Physics-Informed Neural Networks for Solving
+                   Integro and Fractional {PDEs}},
+  author        = {Gupta, Deepak and Behera, Ratikanta},
+  year          = {2026},
+  eprint        = {2606.26865},
+  archivePrefix = {arXiv},
+  primaryClass  = {math.AP},
+  url           = {https://arxiv.org/abs/2606.26865}
+}</pre>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section id="operators" aria-labelledby="operators-h">
+        <span class="status status--exploring">Exploring, no results yet</span>
+        <h2 id="operators-h" style="margin-top:.5rem">Exploring: quantum neural operators</h2>
+        <div class="prose">
+          <p>A PINN solves one instance of a problem. A neural operator learns the solution map itself, for example from an initial condition or a coefficient field to the solution, so that a new instance is solved by a single forward pass. The wavelet neural operator of Tripura and Chakraborty does this with layers that move into wavelet coefficients, act on them, and transform back.</p>
+          <p>That structure raises the question I am now working on: can a quantum wavelet transform take the place of the classical one inside such a layer, with trainable circuits acting on the coefficients? Before claiming anything I want to answer the practical questions: how data enters and leaves the circuit, how circuit depth and parameter count scale, and whether there is a regime in which a quantum layer is competitive once those costs are counted. My <a href="/software/">quantum wavelet transform implementation</a> is one of the pieces this would need.</p>
+          <p class="meta">This direction has no published results yet.</p>
+        </div>
+      </section>
+
+      <section id="numbers" aria-labelledby="numbers-h">
+        <h2 id="numbers-h">How to read the numbers</h2>
+        <div class="prose">
+          <p>All the results on this site come from noiseless state-vector simulation of quantum circuits on classical hardware, using PennyLane's <code>default.qubit</code> simulator with PyTorch. They show how accurately a circuit-based model of a given size can be trained on a problem and how its parameter count compares with classical models.</p>
+          <p>They do not show how the methods behave on quantum hardware, where noise and finite measurement samples matter, and they are not evidence of quantum advantage. Timing comparisons are between simulated models. Loading data into a quantum state and reading results out of it have costs that simulation hides, and any honest comparison with classical solvers has to count them.</p>
+        </div>
+      </section>
+
+      <section id="talks" aria-labelledby="talks-h">
+        <h2 id="talks-h">Talks</h2>
+        <dl class="log">
+          <div><dt>February 2026</dt><dd>“QPINNs: Quantum Physics-Informed Neural Networks for Solving Partial Differential Equations.” International Conference on Advanced Scientific Computing &amp; Machine Learning (ASCML 2026), BITS Pilani K K Birla Goa Campus. Best Student Paper Award at the conference.</dd></div>
+        </dl>
+      </section>
+
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h2>Deepak Gupta</h2>
+      <p>Department of Computational and Data Sciences, Indian Institute of Science, Bengaluru 560012, India</p>
+    </div>
+    <ul aria-label="Contact and profiles">
+      <li><a href="mailto:deepakgupta1@iisc.ac.in">deepakgupta1@iisc.ac.in</a></li>
+      <li><a href="https://scholar.google.com/citations?user=g9Zq-e4AAAAJ">Google Scholar</a></li>
+      <li><a href="https://github.com/deepakg-2511">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/deepakiisc">LinkedIn</a></li>
+    </ul>
+    <p class="colophon">Set in TeX Gyre Pagella and Instrument Sans. Figures are computed from the benchmark problems and code described on this site. Last updated October 2026. <a href="https://github.com/deepakg-2511/deepakg-2511.github.io">Site source</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Software — Deepak Gupta</title>
+<meta name="description" content="A gate-level PennyLane implementation of the multilevel 2D quantum wavelet transform, with an in-browser simulation of its circuit.">
+<meta name="author" content="Deepak Gupta">
+<link rel="canonical" href="https://deepakg-2511.github.io/software/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F7F8FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1320" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Deepak Gupta">
+<meta property="og:title" content="Software — Deepak Gupta">
+<meta property="og:description" content="A gate-level PennyLane implementation of the multilevel 2D quantum wavelet transform, with an in-browser simulation of its circuit.">
+<meta property="og:url" content="https://deepakg-2511.github.io/software/">
+<meta property="og:image" content="https://deepakg-2511.github.io/assets/img/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Deepak Gupta — quantum machine learning for scientific computing, with a multilevel wavelet decomposition of a PDE solution.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/pagella-regular.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-sans-regular.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<script>(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<script src="/assets/js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/"><svg viewBox="0 0 22 22" aria-hidden="true" focusable="false"><rect class="q-a" x="1.7" y="1.7" width="4.65" height="4.65"/><path class="q-d" d="M1.7 1.7h18.6v18.6H1.7z M11 1.7v18.6 M1.7 11h18.6 M6.35 1.7v9.3 M1.7 6.35h9.3"/></svg><span>Deepak Gupta</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/research/">Research</a>
+      <a href="/software/" aria-current="page">Software</a>
+      <a href="/about/">About</a>
+      <button class="theme-toggle" type="button" aria-label="Switch theme">
+        <svg class="i-moon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.2 1.1a6.9 6.9 0 1 0 8.7 8.7A5.6 5.6 0 0 1 6.2 1.1z"/></svg>
+        <svg class="i-sun" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 .9v1.8M8 13.3v1.8M.9 8h1.8M13.3 8h1.8M3 3l1.3 1.3M11.7 11.7 13 13M3 13l1.3-1.3M11.7 4.3 13 3"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <header class="page-head">
+    <div class="wrap">
+      <h1>Software</h1>
+      <p class="lead">I learn quantum algorithms by implementing them, gate by gate, and testing them in circuit simulators. These are the implementations I have made public.</p>
+    </div>
+  </header>
+
+  <div class="wrap article-grid">
+    <nav class="toc" aria-labelledby="toc-h">
+      <h2 id="toc-h">On this page</h2>
+      <ol>
+        <li><a href="#qwt">Multilevel 2D quantum wavelet transform</a>
+          <ol>
+            <li><a href="#qwt-why">Why wavelets</a></li>
+            <li><a href="#qwt-circuit">How the circuit works</a></li>
+            <li><a href="#qwt-demo">What it computes</a></li>
+            <li><a href="#qwt-scope">Scope and cost</a></li>
+          </ol>
+        </li>
+        <li><a href="#fw">Haar and D4 operators</a></li>
+      </ol>
+    </nav>
+
+    <article class="article">
+      <section id="qwt" aria-labelledby="qwt-h">
+        <h2 id="qwt-h">Multilevel 2D quantum wavelet transform in PennyLane</h2>
+        <ul class="links">
+          <li><a href="https://github.com/deepakg-2511/multilevel-2D-QWT-pennylane">Source on GitHub</a></li>
+          <li><a href="https://github.com/deepakg-2511/multilevel-2D-QWT-pennylane#readme">README</a></li>
+          <li><a href="https://github.com/deepakg-2511/multilevel-2D-QWT-pennylane/blob/main/notebooks/test.ipynb">Validation notebook</a></li>
+        </ul>
+        <dl class="kv">
+          <dt>Follows</dt>
+          <dd>H.-S. Li, P. Fan, H. Peng, S. Song and G.-L. Long, “Multilevel 2-D quantum wavelet transforms”, <i>IEEE Transactions on Cybernetics</i> 52(8), 8467–8480, 2022</dd>
+          <dt>Built with</dt>
+          <dd>Python, PennyLane, NumPy, Matplotlib</dd>
+          <dt>Status</dt>
+          <dd>Independent research implementation. It is not part of PennyLane.</dd>
+        </dl>
+
+        <h3 id="qwt-why">Why wavelets</h3>
+        <div class="prose">
+          <p>The quantum Fourier transform is a standard subroutine, available in every major quantum software library. Many problems in signal processing and numerical analysis, including the PDEs in my own research, are better described by wavelets, which are localized in both position and scale. Quantum wavelet transforms have been studied since the late 1990s, starting with Fijany and Williams, and the multilevel two-dimensional version of Li et al. extends them to images and fields. I wanted a gate-level implementation of it that I could inspect, test and reuse as a building block.</p>
+        </div>
+
+        <h3 id="qwt-circuit">How the circuit works</h3>
+        <div class="prose">
+          <p>A <math><msup><mn>2</mn><mi>n</mi></msup><mo>×</mo><msup><mn>2</mn><mi>m</mi></msup></math> array is amplitude-encoded on <math><mi>n</mi><mo>+</mo><mi>m</mi></math> qubits: the first register indexes the row and the second the column, so entry <math><mo stretchy="false">(</mo><mi>r</mi><mo>,</mo><mi>c</mi><mo stretchy="false">)</mo></math> becomes the amplitude of the basis state <math><mo stretchy="false" lspace="0" rspace="0">|</mo><mi>r</mi><mo stretchy="false" lspace="0" rspace="0">⟩</mo><mo stretchy="false" lspace="0" rspace="0">|</mo><mi>c</mi><mo stretchy="false" lspace="0" rspace="0">⟩</mo></math>.</p>
+          <p>One level of the Haar transform on a register is a Hadamard gate on its last qubit, which forms normalized sums and differences of neighbouring entries, followed by a perfect-shuffle permutation that moves that qubit to the front so the sums and differences collect in two halves:</p>
+          <math display="block"><mrow><msubsup><mi>W</mi><msup><mn>2</mn><mi>n</mi></msup><mi>H</mi></msubsup><mo>=</mo><msub><mi>P</mi><mrow><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>,</mo><mn>2</mn></mrow></msub><mspace width="0.17em"></mspace><mo stretchy="false">(</mo><msub><mi>I</mi><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup></msub><mo>⊗</mo><mi>H</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+          <p>The perfect shuffle is a cyclic rotation of the qubits and is built from a chain of SWAP gates. Applying this to both registers gives the 2D transform, and the inverse runs the same gates in reverse. The Daubechies-4 version replaces the Hadamard step with the operator <math><msubsup><mi>D</mi><msup><mn>2</mn><mi>n</mi></msup><mi>p</mi></msubsup></math> of Li et al., built from a triangular network of multi-controlled X gates and two fixed single-qubit rotations. Further levels apply the transform again to the remaining qubits of each register.</p>
+        </div>
+        <figure class="panel circuit wide">
+          <div class="circuit-scroll"><svg viewBox="0 0 610 280" role="img" aria-labelledby="qwt-c-title qwt-c-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="qwt-c-title">Circuit for two levels of the 2D Haar quantum wavelet transform on 3 + 3 qubits</title>
+<desc id="qwt-c-desc">Six wires, x0 to x2 for the row index and y0 to y2 for the column index, start from an amplitude-encoded state. Level 1 applies a Hadamard gate to x2 and y2, then SWAP gates x1–x2 and x0–x1 on the row register and y1–y2 and y0–y1 on the column register. Level 2 repeats the pattern on x1, x2 and y1, y2: a Hadamard on x2 and y2, then SWAPs x1–x2 and y1–y2.</desc>
+<line class="wire" x1="46" y1="42" x2="492" y2="42"/>
+<text class="wl" x="36" y="47" text-anchor="end">x<tspan baseline-shift="sub" font-size="11">0</tspan></text>
+<line class="wire" x1="46" y1="78" x2="492" y2="78"/>
+<text class="wl" x="36" y="83" text-anchor="end">x<tspan baseline-shift="sub" font-size="11">1</tspan></text>
+<line class="wire" x1="46" y1="114" x2="492" y2="114"/>
+<text class="wl" x="36" y="119" text-anchor="end">x<tspan baseline-shift="sub" font-size="11">2</tspan></text>
+<line class="wire" x1="46" y1="164" x2="492" y2="164"/>
+<text class="wl" x="36" y="169" text-anchor="end">y<tspan baseline-shift="sub" font-size="11">0</tspan></text>
+<line class="wire" x1="46" y1="200" x2="492" y2="200"/>
+<text class="wl" x="36" y="205" text-anchor="end">y<tspan baseline-shift="sub" font-size="11">1</tspan></text>
+<line class="wire" x1="46" y1="236" x2="492" y2="236"/>
+<text class="wl" x="36" y="241" text-anchor="end">y<tspan baseline-shift="sub" font-size="11">2</tspan></text>
+<rect class="enc" x="58" y="26" width="80" height="226" rx="4"/>
+<text class="enc-t" x="98.0" y="133.0" text-anchor="middle">amplitude</text>
+<text class="enc-t" x="98.0" y="150.0" text-anchor="middle">encoding</text>
+<rect class="stage" x="160" y="12" width="156" height="250" rx="4"/>
+<text class="stage-t" x="166" y="25">Level 1</text>
+<rect class="stage" x="356" y="12" width="102" height="250" rx="4"/>
+<text class="stage-t" x="362" y="25">Level 2</text>
+<rect class="gate" x="171" y="101" width="26" height="26" rx="3"/>
+<text class="gate-t" x="184" y="119" text-anchor="middle">H</text>
+<rect class="gate" x="171" y="223" width="26" height="26" rx="3"/>
+<text class="gate-t" x="184" y="241" text-anchor="middle">H</text>
+<line class="swap" x1="238" y1="78" x2="238" y2="114"/>
+<path class="swap" d="M232 72 L244 84 M244 72 L232 84"/>
+<path class="swap" d="M232 108 L244 120 M244 108 L232 120"/>
+<line class="swap" x1="238" y1="200" x2="238" y2="236"/>
+<path class="swap" d="M232 194 L244 206 M244 194 L232 206"/>
+<path class="swap" d="M232 230 L244 242 M244 230 L232 242"/>
+<line class="swap" x1="292" y1="42" x2="292" y2="78"/>
+<path class="swap" d="M286 36 L298 48 M298 36 L286 48"/>
+<path class="swap" d="M286 72 L298 84 M298 72 L286 84"/>
+<line class="swap" x1="292" y1="164" x2="292" y2="200"/>
+<path class="swap" d="M286 158 L298 170 M298 158 L286 170"/>
+<path class="swap" d="M286 194 L298 206 M298 194 L286 206"/>
+<rect class="gate" x="367" y="101" width="26" height="26" rx="3"/>
+<text class="gate-t" x="380" y="119" text-anchor="middle">H</text>
+<rect class="gate" x="367" y="223" width="26" height="26" rx="3"/>
+<text class="gate-t" x="380" y="241" text-anchor="middle">H</text>
+<line class="swap" x1="434" y1="78" x2="434" y2="114"/>
+<path class="swap" d="M428 72 L440 84 M440 72 L428 84"/>
+<path class="swap" d="M428 108 L440 120 M440 108 L428 120"/>
+<line class="swap" x1="434" y1="200" x2="434" y2="236"/>
+<path class="swap" d="M428 194 L440 206 M440 194 L428 206"/>
+<path class="swap" d="M428 230 L440 242 M440 230 L428 242"/>
+<path class="grp" d="M504 32 h6 V124 h-6"/>
+<text class="grp-t" x="518" y="76.0">row</text>
+<text class="grp-t" x="518" y="91.0">register</text>
+<path class="grp" d="M504 154 h6 V246 h-6"/>
+<text class="grp-t" x="518" y="198.0">column</text>
+<text class="grp-t" x="518" y="213.0">register</text>
+</svg></div>
+          <figcaption>Two levels of the 2D Haar transform on 3 + 3 qubits, drawn from the gate sequence in <code>hqwt_1d.py</code>, <code>permutations.py</code> and <code>multilevel_qwt.py</code>. The amplitude-encoding step is shown as a single block.</figcaption>
+        </figure>
+
+        <h3 id="qwt-demo">What it computes</h3>
+        <figure class="wide" style="margin-top:1rem">
+          <div class="panel qwt-demo" data-qwt-demo>
+            <div class="controls" style="margin-top:0;margin-bottom:1rem">
+              <label for="qwt-field">Input field</label>
+              <select id="qwt-field">
+                <option value="helmholtz">Helmholtz, sin(πx) sin(8πy)</option>
+                <option value="klein">Klein–Gordon, x cos(10πt) + (xt)³</option>
+                <option value="heat">Heat conduction, ε = 0.15</option>
+              </select>
+              <button type="button" class="button button--quiet" data-inverse>Apply the inverse circuit</button>
+            </div>
+            <div class="pair">
+              <div><canvas data-in role="img" aria-label="Input field, 64 by 64 samples, amplitude-encoded"></canvas><p class="cap">Input, amplitude-encoded (64 × 64)</p></div>
+              <div><canvas data-out role="img" aria-label="Output amplitudes"></canvas><p class="cap" data-out-cap>Output amplitudes, one level</p></div>
+            </div>
+            <p class="readout" aria-live="polite"></p>
+          </div>
+          <figcaption>Computed in your browser by applying the repository's gate sequence for one level of the 2D Haar transform to a 12-qubit state vector, using a few lines of JavaScript rather than PennyLane. The output equals the classical one-level 2D Haar transform of the normalized input. On a real device, reading these amplitudes out would take many repeated measurements.</figcaption>
+        </figure>
+
+        <h3>What is implemented</h3>
+        <div class="prose">
+          <ul>
+            <li>Amplitude encoding of grayscale images and RGB arrays whose sides are powers of two.</li>
+            <li>One-dimensional Haar and Daubechies-4 transforms, with their inverses.</li>
+            <li>Two-dimensional transforms acting on the row and column registers.</li>
+            <li>Multilevel forward and inverse transforms for both wavelets, in one and two dimensions.</li>
+            <li>Circuits written with elementary gates (Hadamard, SWAP, multi-controlled X with zero-controls, single-qubit unitaries) rather than dense matrices.</li>
+          </ul>
+          <h4>How it was checked</h4>
+          <p>The notebook in the repository checks that the encoding reproduces the normalized input, and that each forward transform followed by its inverse returns the original state: for 1D and 2D Haar and Daubechies-4 transforms, and for multilevel transforms of a 512 × 512 image, which is an 18-qubit simulation.</p>
+        </div>
+
+        <h3 id="qwt-scope">Scope and cost</h3>
+        <div class="prose">
+          <p>The number of gates in the transform grows only polynomially with the number of qubits, but that is not a speedup over the classical wavelet transform. Preparing the encoded state from classical data and reading out the coefficients generally cost at least as much as computing the transform classically. A quantum wavelet transform is useful as a subroutine inside algorithms whose data already lives in a quantum state, and that is how I am interested in using it: as a multiscale feature map for quantum models, and as a candidate component for the quantum neural operators I am <a href="/research/#operators">exploring</a>.</p>
+        </div>
+      </section>
+
+      <section id="fw" aria-labelledby="fw-h">
+        <h2 id="fw-h">Haar and D4 operators following Fijany and Williams</h2>
+        <ul class="links">
+          <li><a href="https://github.com/deepakg-2511/quantum-wavelet-transforms">Source on GitHub</a></li>
+          <li><a href="https://github.com/deepakg-2511/quantum-wavelet-transforms/blob/main/docs/theory.md">Theory notes</a></li>
+        </ul>
+        <div class="prose" style="margin-top:1rem">
+          <p>An earlier, work-in-progress experiment in packaging quantum wavelet transforms as reusable PennyLane operations. It defines Haar and Daubechies-4 transforms and the perfect-shuffle and bit-reversal permutations as <code>Operation</code> classes with gate decompositions, resource counts and unit tests, together with notes on the theory. It follows A. Fijany and C. P. Williams, <a href="https://arxiv.org/abs/quant-ph/9809004">“Quantum wavelet transforms: fast algorithms and complete circuits”</a> (1998).</p>
+        </div>
+      </section>
+    </article>
+  </div>
+</main>
+<script src="/assets/js/multiscale.js" defer></script>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h2>Deepak Gupta</h2>
+      <p>Department of Computational and Data Sciences, Indian Institute of Science, Bengaluru 560012, India</p>
+    </div>
+    <ul aria-label="Contact and profiles">
+      <li><a href="mailto:deepakgupta1@iisc.ac.in">deepakgupta1@iisc.ac.in</a></li>
+      <li><a href="https://scholar.google.com/citations?user=g9Zq-e4AAAAJ">Google Scholar</a></li>
+      <li><a href="https://github.com/deepakg-2511">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/deepakiisc">LinkedIn</a></li>
+    </ul>
+    <p class="colophon">Set in TeX Gyre Pagella and Instrument Sans. Figures are computed from the benchmark problems and code described on this site. Last updated October 2026. <a href="https://github.com/deepakg-2511/deepakg-2511.github.io">Site source</a>.</p>
+  </div>
+</footer>
+</body>
+</html>

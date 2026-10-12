@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <style>.d{fill:none;stroke:#141B2D;stroke-width:1.5}.a{fill:#2B4C9B}@media (prefers-color-scheme:dark){.d{stroke:#E6EAF2}.a{fill:#8FA9F5}}</style>
+  <rect class="a" x="1.7" y="1.7" width="4.65" height="4.65"/>
+  <path class="d" d="M1.7 1.7h18.6v18.6H1.7z M11 1.7v18.6 M1.7 11h18.6 M6.35 1.7v9.3 M1.7 6.35h9.3"/>
+</svg>
